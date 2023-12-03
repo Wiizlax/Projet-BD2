@@ -17,7 +17,7 @@ public class GestionStage {
         String url="jdbc:postgresql://localhost:5432/postgres";
         Connection conn=null;
         try {
-            conn= DriverManager.getConnection(url,"postgres","mdp"); // password = votre password postgres
+            conn= DriverManager.getConnection(url,"postgres","coursbd123");
         } catch (SQLException e) {
             System.out.println("Impossible de joindre le server !");
             System.exit(1);
