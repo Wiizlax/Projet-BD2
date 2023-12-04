@@ -75,13 +75,13 @@ public class GestionStageEntreprise {
                     encoderNouvelleOffreStage(conn, entreprise);
                     break;
                 case 2:
-                    //
+                    voirMotClesDisponibles(conn);
                     break;
                 case 3:
-                    //
+                    ajouterMotCleAOffre(conn , entreprise);
                     break;
                 case 4:
-                    //
+                    voirOffresStage(conn , entreprise);
                     break;
                 case 5:
                     //
@@ -98,7 +98,7 @@ public class GestionStageEntreprise {
         } while (choix != 0);
     }
 
-    private static Entreprise authenticateCompany(Connection conn) {
+    private Entreprise authenticateCompany(Connection conn) {
         Scanner scanner = new Scanner(System.in);
 
         System.out.print("Entrez l'email de l'entreprise : ");
@@ -132,7 +132,7 @@ public class GestionStageEntreprise {
         return null;
     }
 
-    private static OffreStage encoderNouvelleOffreStage(Connection conn, Entreprise entreprise) {
+    private OffreStage encoderNouvelleOffreStage(Connection conn, Entreprise entreprise) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("\n Entrez le code d'identification désiré :  ");
         String codeStage = scanner.nextLine();
@@ -162,9 +162,9 @@ public class GestionStageEntreprise {
                     nouvelleOffre.setIdOffreStage(idOffreStage);
                     String etat = generatedKeys.getString(2);
                     nouvelleOffre.setEtat(etat);
-                    System.out.println("Offre de stage encodée avec succès !  " );
+                    System.out.println("\nOffre de stage encodée avec succès !  ");
                     System.out.println("-------------------------------------");
-                    System.out.println("\nInformations sur l'offre ajouté : " + "\n" + nouvelleOffre.toString());
+                    System.out.println("Informations sur l'offre ajouté : " + "\n" + nouvelleOffre.toString());
                     return nouvelleOffre;
                 }
             }
@@ -175,6 +175,77 @@ public class GestionStageEntreprise {
         return null;
     }
 
+    private void voirMotClesDisponibles(Connection conn) {
+        String sqlQuery = "SELECT id_mot_cle , mot FROM projet.mots_cles mc";
+        try (Statement statement = conn.createStatement();
+             ResultSet resultSet = statement.executeQuery(sqlQuery)) {
+
+            // Parcourir les résultats du ResultSet
+            int i = 0;
+            while (resultSet.next()) {
+                i++;
+                int idMotCle = resultSet.getInt("id_mot_cle");
+                String mot = resultSet.getString("mot");
+                //affichage des mots clés
+                System.out.println("Mot clé " + i + " : " + mot);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    private void ajouterMotCleAOffre(Connection conn, Entreprise entreprise) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("\n Entrez le code de l'offre que vous voulez ajouter un mot clé :  ");
+        String codeOffre = scanner.nextLine();
+        System.out.print("\n Entrez le mot clé : ");
+        String motCle = scanner.nextLine();
+
+        String sqlQuery = "SELECT * FROM projet.ajoutMotCleAUneOffre(?,?,?)";
+        try (PreparedStatement preparedStatement = conn.prepareStatement(sqlQuery)) {
+            preparedStatement.setString(1, entreprise.getId_entreprise());
+            preparedStatement.setString(2, codeOffre);
+            preparedStatement.setString(3, motCle);
+
+            try (ResultSet generatedKeys = preparedStatement.executeQuery()) {
+                if (generatedKeys.next()) {
+                    System.out.println("\nMot Clé : " + motCle + " ajouté à l'offre " + codeOffre + " avec succès !");
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur lors de l'ajout d'un mot clé à une offre de stage.");
+            e.printStackTrace();
+        }
+
+    }
+    private void voirOffresStage(Connection conn, Entreprise entreprise) {
+        String sqlQuery = "SELECT * FROM projet.afficher_offres_par_entreprise(?)";
+       try(PreparedStatement preparedStatement = conn.prepareStatement(sqlQuery)) {
+           preparedStatement.setString(1, entreprise.getId_entreprise());
+           try (ResultSet resultSet = preparedStatement.executeQuery()) {
+
+               while (resultSet.next()) {
+                   String code_stage = resultSet.getString("code_stage");
+                   String description = resultSet.getString("description");
+                   String semestreStage = resultSet.getString("semestre_stage");
+                   String etat = resultSet.getString("etat");
+                   int nbrCandidaturesAttente = resultSet.getInt("nbr_candidatures_en_attente");
+                   String nomEtudiant = resultSet.getString("nom_etudiant");
+
+                   //affichage des offres
+
+                   System.out.println("__________________Offre "+ code_stage + "______________________");
+                   System.out.println("Offre de Stage de code : " + code_stage);
+                   System.out.println(" Description : " + description);
+                   System.out.println(" Semetres : " + semestreStage);
+                   System.out.println(" Etat de l'offre : "+ etat);
+                   System.out.println("Nombre de candidatures en attente : " + nbrCandidaturesAttente);
+                   System.out.println("nom de l'etudiant : " + nomEtudiant);
+               }
+           }
+       } catch (SQLException e) {
+           throw new RuntimeException(e);
+       }
+    }
 
     public static void main(String[] args) {
         GestionStageEntreprise gestionStageEntreprise = new GestionStageEntreprise();
