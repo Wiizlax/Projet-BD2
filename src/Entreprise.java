@@ -55,6 +55,11 @@ public class Entreprise {
     }
 
 
-
-
+    @Override
+    public String toString() {
+        return "\nNom_entreprise : " + nom_entreprise + "\n" +
+                "Id_entreprise : " + id_entreprise + "\n" +
+                "Adresse_entreprise : " + adresse_entreprise + "\n" +
+                "Adresse_mail : " + adresse_mail + "\n";
+    }
 }

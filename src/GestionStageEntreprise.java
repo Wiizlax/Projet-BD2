@@ -3,9 +3,32 @@ import java.util.Scanner;
 
 public class GestionStageEntreprise {
 
-    private static Scanner scanner;
+    private Scanner scanner;
+    private Connection conn;
+    private Entreprise entrepriseConnecte;
 
-    public static void main(String[] args) {
+    public GestionStageEntreprise() {
+        scanner = new Scanner(System.in);
+        conn = null;
+        entrepriseConnecte = null;
+    }
+
+    public void run() {
+        initializeDatabase();
+
+        while (entrepriseConnecte == null) {
+            entrepriseConnecte = authenticateCompany(conn);
+
+            if (entrepriseConnecte != null) {
+                System.out.println("Connexion réussie pour l'entreprise : " + entrepriseConnecte.getNom_entreprise());
+                afficherMenu(entrepriseConnecte, conn);
+            } else {
+                System.out.println("Mauvais mail ou mot de passe ! Veuillez réessayer.");
+            }
+        }
+    }
+
+    private void initializeDatabase() {
         try {
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
@@ -13,38 +36,23 @@ public class GestionStageEntreprise {
             System.exit(1);
         }
 
-        String url="jdbc:postgresql://localhost:5432/postgres";
-        Connection conn=null;
+        String url = "jdbc:postgresql://localhost:5432/postgres";
         try {
-            conn= DriverManager.getConnection(url,"postgres","coursbd123"); // password = votre password postgres
+            conn = DriverManager.getConnection(url, "postgres", "coursbd123");
         } catch (SQLException e) {
             System.out.println("Impossible de joindre le server !");
             System.exit(1);
         }
-        Entreprise entrepriseConnecte = null;
-
-        // Boucle authentification entreprise
-        while (entrepriseConnecte == null) {
-            entrepriseConnecte = authenticateCompany(conn);
-
-            if (entrepriseConnecte != null) {
-                System.out.println("Connexion réussie pour l'entreprise : " + entrepriseConnecte.getNom_entreprise());
-
-                afficherMenu(entrepriseConnecte,conn);
-            } else {
-                System.out.println("Mauvais mail ou mot de passe ! Veuillez réessayer.");
-            }
-        }
     }
 
-    private static void afficherMenu(Entreprise entreprise, Connection conn) {
-        Scanner scanner = new Scanner(System.in);
+    private void afficherMenu(Entreprise entreprise, Connection conn) {
 
         int choix;
         do {
+            System.out.println("-------------------------------------------------------");
             System.out.println("\n Entreprise " + entreprise.getNom_entreprise());
             System.out.println("\n Menu Entreprise :");
-            System.out.println("\n Menu Entreprise :");
+
             System.out.println("1 -> Encoder une offre de stage.");
             System.out.println("2 -> Voir les mots-clés disponibles pour décrire une offre de stage.");
             System.out.println("3 -> Ajouter un mot-clé à une de ses offres de stage.");
@@ -64,7 +72,7 @@ public class GestionStageEntreprise {
                     System.out.println("Au revoir !");
                     break;
                 case 1:
-                    encoderNouvelleOffreStage(conn , entreprise);
+                    encoderNouvelleOffreStage(conn, entreprise);
                     break;
                 case 2:
                     //
@@ -123,7 +131,8 @@ public class GestionStageEntreprise {
         }
         return null;
     }
-    private static OffreStage encoderNouvelleOffreStage(Connection conn , Entreprise entreprise) {
+
+    private static OffreStage encoderNouvelleOffreStage(Connection conn, Entreprise entreprise) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("\n Entrez le code d'identification désiré :  ");
         String codeStage = scanner.nextLine();
@@ -138,22 +147,25 @@ public class GestionStageEntreprise {
         nouvelleOffre.setDescription(description);
         nouvelleOffre.setSemestre_stage(semestre_stage); // Set the ID of the company offering the internship
 
-        String query = "INSERT INTO projet.offres_de_stage ( entreprise, code_stage , etat, semestre_stage, description) VALUES (?, ?,DEFAULT , ?, ?)";
+        String query = "INSERT INTO projet.offres_de_stage ( entreprise, code_stage , etat, semestre_stage, description) VALUES (?, ?,DEFAULT , ?, ?) RETURNING id_offre_stage , etat";
         try (PreparedStatement preparedStatement = conn.prepareStatement(query)) {
             preparedStatement.setString(1, nouvelleOffre.getEntreprise().getId_entreprise());
             preparedStatement.setString(2, nouvelleOffre.getCode_stage());
             preparedStatement.setString(3, nouvelleOffre.getSemestre_stage());
             preparedStatement.setString(4, nouvelleOffre.getDescription());
-            int rowsAffected = preparedStatement.executeUpdate();
-            if (rowsAffected > 0) {
-                // verifie si on a modifié + d'une colonne
-                try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        nouvelleOffre.setIdOffreStage(generatedKeys.getInt(1));
-                        System.out.println("Offre de stage encodée avec succès : " + nouvelleOffre.toString());
-                        System.out.println("\n ID de l'offre : " + nouvelleOffre.getIdOffreStage());
-                        return nouvelleOffre;
-                    }
+
+
+            // verifie si on a modifié + d'une colonne
+            try (ResultSet generatedKeys = preparedStatement.executeQuery()) {
+                if (generatedKeys.next()) {
+                    int idOffreStage = generatedKeys.getInt(1); // Récupération de la valeur de la colonne auto-incrémentée
+                    nouvelleOffre.setIdOffreStage(idOffreStage);
+                    String etat = generatedKeys.getString(2);
+                    nouvelleOffre.setEtat(etat);
+                    System.out.println("Offre de stage encodée avec succès !  " );
+                    System.out.println("-------------------------------------");
+                    System.out.println("\nInformations sur l'offre ajouté : " + "\n" + nouvelleOffre.toString());
+                    return nouvelleOffre;
                 }
             }
         } catch (SQLException e) {
@@ -164,4 +176,8 @@ public class GestionStageEntreprise {
     }
 
 
+    public static void main(String[] args) {
+        GestionStageEntreprise gestionStageEntreprise = new GestionStageEntreprise();
+        gestionStageEntreprise.run();
+    }
 }

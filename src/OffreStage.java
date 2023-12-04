@@ -74,8 +74,7 @@ public class OffreStage {
 
     @Override
     public String toString() {
-        return "OffreStage : " + code_stage + '\n' +
-                "Id  : " + idOffreStage + '\n' +
+        return "Id  : " + idOffreStage + '\n' +
                 "Code stage : " + code_stage + '\n' +
                 "Etat : " + etat + '\n' +
                 "Semestre Stage : " + semestre_stage + '\n' +
