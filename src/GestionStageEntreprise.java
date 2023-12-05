@@ -68,32 +68,15 @@ public class GestionStageEntreprise {
 
             // Effectuer l'action en fonction du choix
             switch (choix) {
-                case 0:
-                    System.out.println("Au revoir !");
-                    break;
-                case 1:
-                    encoderNouvelleOffreStage(conn, entreprise);
-                    break;
-                case 2:
-                    voirMotClesDisponibles(conn);
-                    break;
-                case 3:
-                    ajouterMotCleAOffre(conn , entreprise);
-                    break;
-                case 4:
-                    voirOffresStage(conn , entreprise);
-                    break;
-                case 5:
-                    //
-                    break;
-                case 6:
-                    //
-                    break;
-                case 7:
-                    //
-                    break;
-                default:
-                    System.out.println("Choix invalide. Veuillez réessayer.");
+                case 0 -> System.out.println("Au revoir !");
+                case 1 -> encoderNouvelleOffreStage(conn, entreprise);
+                case 2 -> voirMotClesDisponibles(conn);
+                case 3 -> ajouterMotCleAOffre(conn , entreprise);
+                case 4 -> voirOffresStage(conn , entreprise);
+                case 5 -> voirLesCandidaturesPourUneOffre(conn , entreprise);
+                case 6 -> selectionnerEtudiantPouroffre(conn , entreprise);
+                case 7 -> annulerOffreDeStage(conn , entreprise);
+                default -> System.out.println("Choix invalide. Veuillez réessayer.");
             }
         } while (choix != 0);
     }
@@ -133,9 +116,9 @@ public class GestionStageEntreprise {
     }
 
     private OffreStage encoderNouvelleOffreStage(Connection conn, Entreprise entreprise) {
+
+
         Scanner scanner = new Scanner(System.in);
-        System.out.print("\n Entrez le code d'identification désiré :  ");
-        String codeStage = scanner.nextLine();
         System.out.print("\n Entrez le semestre auquel le stage se déroulera : ");
         String semestre_stage = scanner.nextLine();
         System.out.print("\n Entrez la description de l'offre : ");
@@ -143,16 +126,15 @@ public class GestionStageEntreprise {
 
         OffreStage nouvelleOffre = new OffreStage();
         nouvelleOffre.setEntreprise(entreprise);
-        nouvelleOffre.setCode_stage(codeStage);
         nouvelleOffre.setDescription(description);
         nouvelleOffre.setSemestre_stage(semestre_stage); // Set the ID of the company offering the internship
 
-        String query = "INSERT INTO projet.offres_de_stage ( entreprise, code_stage , etat, semestre_stage, description) VALUES (?, ?,DEFAULT , ?, ?) RETURNING id_offre_stage , etat";
+        String query = "INSERT INTO projet.offres_de_stage ( entreprise, code_stage , etat, semestre_stage, description) VALUES (?, DEFAULT,DEFAULT , ?, ?) " +
+                "RETURNING id_offre_stage , etat , code_stage";
         try (PreparedStatement preparedStatement = conn.prepareStatement(query)) {
             preparedStatement.setString(1, nouvelleOffre.getEntreprise().getId_entreprise());
-            preparedStatement.setString(2, nouvelleOffre.getCode_stage());
-            preparedStatement.setString(3, nouvelleOffre.getSemestre_stage());
-            preparedStatement.setString(4, nouvelleOffre.getDescription());
+            preparedStatement.setString(2, nouvelleOffre.getSemestre_stage());
+            preparedStatement.setString(3, nouvelleOffre.getDescription());
 
 
             // verifie si on a modifié + d'une colonne
@@ -162,17 +144,38 @@ public class GestionStageEntreprise {
                     nouvelleOffre.setIdOffreStage(idOffreStage);
                     String etat = generatedKeys.getString(2);
                     nouvelleOffre.setEtat(etat);
+                    nouvelleOffre.setCode_stage(getCodeOffre(conn,idOffreStage));
                     System.out.println("\nOffre de stage encodée avec succès !  ");
                     System.out.println("-------------------------------------");
                     System.out.println("Informations sur l'offre ajouté : " + "\n" + nouvelleOffre.toString());
                     return nouvelleOffre;
                 }
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
         System.out.println("Erreur lors de l'encodage de l'offre de stage.");
         return null;
+    }
+    private String  getCodeOffre(Connection conn ,int id_offre){
+        String codeStage = "";
+        String query = "SELECT * FROM projet.getcode_offre WHERE id_offre_stage = ?";
+        try (PreparedStatement preparedStatement = conn.prepareStatement(query)) {
+            preparedStatement.setInt(1, id_offre);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {codeStage = resultSet.getString("code_stage");
+
+
+                    return codeStage;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            codeStage = null;
+        }
+        return codeStage;
     }
 
     private void voirMotClesDisponibles(Connection conn) {
@@ -245,6 +248,82 @@ public class GestionStageEntreprise {
        } catch (SQLException e) {
            throw new RuntimeException(e);
        }
+    }
+    private void voirLesCandidaturesPourUneOffre(Connection conn, Entreprise entreprise) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("\n Entrez le code de l'offre que vous voulez verifier les candidatures :  ");
+        String codeOffre = scanner.nextLine();
+
+        String sqlQuery = "SELECT * FROM projet.getCandidaturesPourOffre(?,?)";
+        try(PreparedStatement preparedStatement = conn.prepareStatement(sqlQuery)) {
+            preparedStatement.setString(1, entreprise.getId_entreprise());
+            preparedStatement.setString(2 ,codeOffre);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    int i = 0;
+                while (resultSet.next()) {
+                    i++;
+                    String mailEtudiant = resultSet.getString("mail_etudiant");
+                    String etat = resultSet.getString("etat");
+                    String nomEtudiant = resultSet.getString("nom_etudiant");
+                    String motivationEtudiant = resultSet.getString("motivation_etudiant");
+
+                    //affichage des offres
+
+                    System.out.println("__________________ Candidature  "+ i + " ______________________");
+                    System.out.println(" Nom Etudiant : " + nomEtudiant);
+                    System.out.println(" E-mail etudiant : " + mailEtudiant);
+                    System.out.println(" Motivation : "+ motivationEtudiant);
+                    System.out.println(" Etat de la candidature : " + etat);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    private void selectionnerEtudiantPouroffre(Connection conn, Entreprise entreprise) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("\n Entrez le code de l'offre :  ");
+        String codeOffre = scanner.nextLine();
+        System.out.print("\n Entrez l'email de l'etudiant que vous voulez attribuer pour l'offre " + codeOffre + " : " );
+        String etudiant = scanner.nextLine();
+
+        String sqlQuery = "select projet.selectionner_etudiant(?,?,?)";
+        try(PreparedStatement preparedStatement = conn.prepareStatement(sqlQuery)) {
+            preparedStatement.setString(1, entreprise.getId_entreprise());
+            preparedStatement.setString(2 ,codeOffre);
+            preparedStatement.setString(3 ,etudiant);
+            try (ResultSet generatedKeys = preparedStatement.executeQuery()) {
+                if (generatedKeys.next()) {
+                    System.out.println("\nL'etudiant  " + etudiant + " a été accepté pour l'offre " + codeOffre + " avec succès !");
+                    System.out.println("Toutes les autres candidatures pour l'offre " + codeOffre + " ont été refuées !");
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur lors de l'ajout d'un mot clé à une offre de stage.");
+            e.printStackTrace();
+        }
+    }
+
+
+    private void annulerOffreDeStage(Connection conn, Entreprise entreprise) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("\n Entrez le code de l'offre que vous voulez annuler :  ");
+        String codeOffre = scanner.nextLine();
+        String sqlQuery = "SELECT projet.annulerOffreDeStage(?,?)";
+        try(PreparedStatement preparedStatement = conn.prepareStatement(sqlQuery)) {
+            preparedStatement.setString(1, codeOffre);
+            preparedStatement.setString(2, entreprise.getId_entreprise());
+
+            try (ResultSet generatedKeys = preparedStatement.executeQuery()) {
+                if (generatedKeys.next()) {
+                    System.out.println("\nL'offre de stage   " + codeOffre + " a été annulé avec succès !");
+                    System.out.println("Toutes les candidatures pour l'offre " + codeOffre + " ont été refuées !");
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur lors de l'ajout d'un mot clé à une offre de stage.");
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) {
