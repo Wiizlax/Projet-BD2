@@ -42,6 +42,10 @@ public class Etudiant {
         return mdp;
     }
 
+    public int getNbrCandidatureEnAttente() {
+        return nbrCandidatureEnAttente;
+    }
+
     public void setIdEtudiant(int idEtudiant) {
         this.idEtudiant = idEtudiant;
     }
