@@ -190,7 +190,8 @@ public class GestionStageEntreprise {
                 int idMotCle = resultSet.getInt("id_mot_cle");
                 String mot = resultSet.getString("mot");
                 //affichage des mots clés
-                System.out.println("Mot clé " + i + " : " + mot);
+                MotsCles motsCles = new MotsCles(idMotCle , mot);
+                System.out.println("Mot clé " + motsCles.getIdMotCle() + " : " + motsCles.getMot());
             }
         } catch (SQLException e) {
             e.printStackTrace();
