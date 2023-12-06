@@ -1,5 +1,9 @@
 package appProfesseur;
 
+import appEntreprise.BCrypt;
+import appEntreprise.Entreprise;
+import appEtudiant.Etudiant;
+
 import java.sql.*;
 import java.util.Scanner;
 
@@ -19,7 +23,7 @@ public class GestionStageProfesseur {
         String url = "jdbc:postgresql://localhost:5432/postgres";
         Connection conn = null;
         try {
-            conn = DriverManager.getConnection(url, "postgres", "mdp"); //ton mdp postgres
+            conn = DriverManager.getConnection(url, "postgres", "Tomtom2002=Wiizlax"); //ton mdp postgres
         } catch (SQLException e) {
             System.out.println("Impossible de joindre le server !");
             System.exit(1);
@@ -38,13 +42,20 @@ public class GestionStageProfesseur {
             System.out.println("2 -> Encoder une entreprise");
 
             System.out.print("Choix : ");
-            choix = scanner.nextInt();
 
-            switch (choix) {
-                case 0 -> System.out.println("Au revoir !");
-                case 1 -> encoderEtudiant(conn);
-                case 2 -> encoderEntreprise(conn);
-                default -> System.out.println("Choix invalide. Veuillez réessayer.");
+            if (scanner.hasNextInt()) {
+                choix = scanner.nextInt();
+
+                switch (choix) {
+                    case 0 -> System.out.println("Au revoir !");
+                    case 1 -> encoderEtudiant(conn);
+                    case 2 -> encoderEntreprise(conn);
+                    default -> System.out.println("Choix invalide. Veuillez réessayer.");
+                }
+            } else {
+                System.out.println("Veuillez entrer un nombre entier.");
+                scanner.nextLine(); // Consomme la ligne invalide
+                choix = -1;
             }
         } while (choix != 0);
     }
@@ -62,12 +73,14 @@ public class GestionStageProfesseur {
         System.out.print("\nEntrez le mot de passe de l'étudiant : ");
         String mdpEtudiant = scanner.nextLine();
 
+        String hashedPassword = BCrypt.hashpw(mdpEtudiant, BCrypt.gensalt());
+
         Etudiant nouvelEtudiant = new Etudiant();
         nouvelEtudiant.setNomEtudiant(nomEtudiant);
         nouvelEtudiant.setPrenomEtudiant(prenomEtudiant);
         nouvelEtudiant.setMail(mailEtudiant);
         nouvelEtudiant.setSemestreStage(semestreStageEtudiant);
-        nouvelEtudiant.setMdp(mdpEtudiant);
+        nouvelEtudiant.setMdp(hashedPassword);
 
         String query = "INSERT INTO projet.etudiants (nom_etudiant,prenom_etudiant,mail,semestre_stage,mot_de_passe,nbr_candidature_en_attente) VALUES (?,?,?,?,?,DEFAULT) RETURNING id_etudiant";
         try (PreparedStatement preparedStatement = conn.prepareStatement(query)) {
