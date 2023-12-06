@@ -1,3 +1,7 @@
+package appEntreprise;
+
+import appEntreprise.Entreprise;
+
 public class OffreStage {
 
     private int idOffreStage;
@@ -79,7 +83,7 @@ public class OffreStage {
                 "Etat : " + etat + '\n' +
                 "Semestre Stage : " + semestre_stage + '\n' +
                 "Description  : " + description + '\n' +
-                "Etudiant : " + etudiant + '\n' +
-                "Entreprise : " + entreprise + '\n';
+                "appEtudiant.Etudiant : " + etudiant + '\n' +
+                "appEntreprise.Entreprise : " + entreprise + '\n';
     }
 }

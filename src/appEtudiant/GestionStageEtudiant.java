@@ -1,3 +1,7 @@
+package appEtudiant;
+
+import appEtudiant.Etudiant;
+
 import java.sql.*;
 import java.util.Scanner;
 
@@ -24,16 +28,23 @@ public class GestionStageEtudiant {
             System.out.println("0 -> Quitter");
 
             System.out.print("Choix : ");
-            choix = scanner.nextInt();
 
-            switch (choix) {
-                case 1 -> afficherOffresValideesParSemestre(etudiant, conn);
-                case 2 -> rechercherOffreParMotCle(etudiant, conn);
-                case 3 -> poserCandidature(etudiant,conn);
-                case 4 -> afficherCandidaturesEtudiant(etudiant, conn);
-                case 5 -> annulerCandidature(etudiant, conn);
-                case 0 -> System.out.println("Au revoir !");
-                default -> System.out.println("Choix invalide. Veuillez réessayer.");
+            if (scanner.hasNextInt()) {
+                choix = scanner.nextInt();
+
+                switch (choix) {
+                    case 1 -> afficherOffresValideesParSemestre(etudiant, conn);
+                    case 2 -> rechercherOffreParMotCle(etudiant, conn);
+                    case 3 -> poserCandidature(etudiant,conn);
+                    case 4 -> afficherCandidaturesEtudiant(etudiant, conn);
+                    case 5 -> annulerCandidature(etudiant, conn);
+                    case 0 -> System.out.println("Au revoir !");
+                    default -> System.out.println("Choix invalide. Veuillez réessayer.");
+                }
+            } else {
+                System.out.println("Veuillez entrer un nombre entier.");
+                scanner.nextLine(); // Consomme la ligne invalide
+                choix = -1;
             }
         } while (choix != 0);
     }
@@ -49,7 +60,7 @@ public class GestionStageEtudiant {
         String url="jdbc:postgresql://localhost:5432/postgres";
         conn=null;
         try {
-            conn= DriverManager.getConnection(url,"postgres","Tomtom2002=Wiizlax");
+            conn= DriverManager.getConnection(url,"postgres","mdp");
         } catch (SQLException e) {
             System.out.println("Impossible de joindre le server !");
             System.exit(1);
@@ -66,7 +77,6 @@ public class GestionStageEtudiant {
 
             if (etudiantConnecte != null) {
                 System.out.println("Connexion réussie pour l'étudiant : " + etudiantConnecte.getPrenomEtudiant() + ' ' + etudiantConnecte.getNomEtudiant());
-
                 afficherMenu(etudiantConnecte, conn);
             } else {
                 System.out.println("Mauvais mail ou mot de passe ! Veuillez réessayer.");
@@ -91,7 +101,7 @@ public class GestionStageEtudiant {
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    // Création de l'objet Etudiant avec les informations de la base de données
+                    // Création de l'objet appEtudiant.Etudiant avec les informations de la base de données
                     Etudiant etudiant = new Etudiant();
                     etudiant.setIdEtudiant(resultSet.getInt("id_etudiant"));
                     etudiant.setNomEtudiant(resultSet.getString("nom_etudiant"));
@@ -105,7 +115,7 @@ public class GestionStageEtudiant {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
         return null;
     }
@@ -125,15 +135,15 @@ public class GestionStageEtudiant {
                     String motsCles = resultSet.getString("mots_cles");
 
                     System.out.println("Code Stage: " + codeStage);
-                    System.out.println("Nom Entreprise: " + nomEntreprise);
-                    System.out.println("Adresse Entreprise: " + adresseEntreprise);
+                    System.out.println("Nom appEntreprise.Entreprise: " + nomEntreprise);
+                    System.out.println("Adresse appEntreprise.Entreprise: " + adresseEntreprise);
                     System.out.println("Description: " + description);
                     System.out.println("Mots-clés: " + motsCles);
                     System.out.println();
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());;
         }
     }
 
@@ -158,15 +168,15 @@ public class GestionStageEtudiant {
                     String motsCles = resultSet.getString("mot");
 
                     System.out.println("Code Stage: " + codeStage);
-                    System.out.println("Nom Entreprise: " + nomEntreprise);
-                    System.out.println("Adresse Entreprise: " + adresseEntreprise);
+                    System.out.println("Nom appEntreprise.Entreprise: " + nomEntreprise);
+                    System.out.println("Adresse appEntreprise.Entreprise: " + adresseEntreprise);
                     System.out.println("Description: " + description);
                     System.out.println("Mot-clé: " + motsCles);
                     System.out.println();
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 
@@ -198,7 +208,7 @@ public class GestionStageEtudiant {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 
@@ -215,13 +225,13 @@ public class GestionStageEtudiant {
                     String etatCandidature = resultSet.getString("etat");
 
                     System.out.println("Code Stage: " + codeStage);
-                    System.out.println("Nom Entreprise: " + nomEntreprise);
+                    System.out.println("Nom appEntreprise.Entreprise: " + nomEntreprise);
                     System.out.println("État de la Candidature: " + etatCandidature);
                     System.out.println();
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 
@@ -238,7 +248,7 @@ public class GestionStageEtudiant {
 
             System.out.println("Candidature annulée avec succès !");
         } catch (SQLException e) {
-            System.out.println("Erreur lors de l'annulation de la candidature : " + e.getMessage());
+            System.out.println(e.getMessage());
         }
     }
 
