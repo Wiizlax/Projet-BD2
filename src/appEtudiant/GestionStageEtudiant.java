@@ -1,3 +1,7 @@
+package appEtudiant;
+
+import appEtudiant.Etudiant;
+
 import java.sql.*;
 import java.util.Scanner;
 
@@ -97,7 +101,7 @@ public class GestionStageEtudiant {
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    // Création de l'objet Etudiant avec les informations de la base de données
+                    // Création de l'objet appEtudiant.Etudiant avec les informations de la base de données
                     Etudiant etudiant = new Etudiant();
                     etudiant.setIdEtudiant(resultSet.getInt("id_etudiant"));
                     etudiant.setNomEtudiant(resultSet.getString("nom_etudiant"));
@@ -131,8 +135,8 @@ public class GestionStageEtudiant {
                     String motsCles = resultSet.getString("mots_cles");
 
                     System.out.println("Code Stage: " + codeStage);
-                    System.out.println("Nom Entreprise: " + nomEntreprise);
-                    System.out.println("Adresse Entreprise: " + adresseEntreprise);
+                    System.out.println("Nom appEntreprise.Entreprise: " + nomEntreprise);
+                    System.out.println("Adresse appEntreprise.Entreprise: " + adresseEntreprise);
                     System.out.println("Description: " + description);
                     System.out.println("Mots-clés: " + motsCles);
                     System.out.println();
@@ -164,8 +168,8 @@ public class GestionStageEtudiant {
                     String motsCles = resultSet.getString("mot");
 
                     System.out.println("Code Stage: " + codeStage);
-                    System.out.println("Nom Entreprise: " + nomEntreprise);
-                    System.out.println("Adresse Entreprise: " + adresseEntreprise);
+                    System.out.println("Nom appEntreprise.Entreprise: " + nomEntreprise);
+                    System.out.println("Adresse appEntreprise.Entreprise: " + adresseEntreprise);
                     System.out.println("Description: " + description);
                     System.out.println("Mot-clé: " + motsCles);
                     System.out.println();
@@ -221,7 +225,7 @@ public class GestionStageEtudiant {
                     String etatCandidature = resultSet.getString("etat");
 
                     System.out.println("Code Stage: " + codeStage);
-                    System.out.println("Nom Entreprise: " + nomEntreprise);
+                    System.out.println("Nom appEntreprise.Entreprise: " + nomEntreprise);
                     System.out.println("État de la Candidature: " + etatCandidature);
                     System.out.println();
                 }

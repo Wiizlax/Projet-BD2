@@ -1,3 +1,5 @@
+package appEtudiant;
+
 public class Etudiant {
 
     private int idEtudiant, nbrCandidatureEnAttente;
