@@ -23,7 +23,7 @@ public class GestionStageProfesseur {
         String url = "jdbc:postgresql://localhost:5432/postgres";
         Connection conn = null;
         try {
-            conn = DriverManager.getConnection(url, "postgres", "Tomtom2002=Wiizlax"); //ton mdp postgres
+            conn = DriverManager.getConnection(url, "postgres", "mdp"); //ton mdp postgres
         } catch (SQLException e) {
             System.out.println("Impossible de joindre le server !");
             System.exit(1);
