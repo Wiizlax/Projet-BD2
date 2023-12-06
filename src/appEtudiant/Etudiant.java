@@ -75,4 +75,14 @@ public class Etudiant {
     public void setNbrCandidatureEnAttente(int nbrCandidatureEnAttente) {
         this.nbrCandidatureEnAttente = nbrCandidatureEnAttente;
     }
+
+    @Override
+    public String toString() {
+        return "\nId_etudiant : " + idEtudiant + "\n" +
+                "Nom etudiant : " + nomEtudiant + "\n" +
+                "Prenom etudiant : " + prenomEtudiant + "\n" +
+                "Mail : " + mail + "\n" +
+                "Semestre stage : " + semestreStage + "\n" +
+                "Nbr candidature en attente : " + nbrCandidatureEnAttente + "\n";
+    }
 }

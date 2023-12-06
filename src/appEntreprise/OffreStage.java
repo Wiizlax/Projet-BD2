@@ -1,6 +1,6 @@
 package appEntreprise;
 
-import appEntreprise.Entreprise;
+import appEtudiant.Etudiant;
 
 public class OffreStage {
 
