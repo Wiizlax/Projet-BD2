@@ -7,46 +7,14 @@ import java.util.Scanner;
 
 public class GestionStageEtudiant {
 
-    private static Scanner scanner;
+    private Connection conn;
 
     public static void main(String[] args)  {
-
-        try {
-            Class.forName("org.postgresql.Driver");
-        } catch (ClassNotFoundException e) {
-            System.out.println("Driver PostgreSQL manquant !");
-            System.exit(1);
-        }
-
-        String url="jdbc:postgresql://localhost:5432/postgres";
-        Connection conn=null;
-        try {
-            conn= DriverManager.getConnection(url,"postgres","mdp");
-        } catch (SQLException e) {
-            System.out.println("Impossible de joindre le server !");
-            System.exit(1);
-        }
-
-        Etudiant etudiantConnecte = null;
-
-        // Boucle pour demander le mail et le mdp jusqu'a ce que la connexion réussisse
-        while (etudiantConnecte == null) {
-            etudiantConnecte = authenticateStudent(conn);
-
-            if (etudiantConnecte != null) {
-                System.out.println("Connexion réussie pour l'étudiant : " + etudiantConnecte.getPrenomEtudiant() + ' ' +etudiantConnecte.getNomEtudiant());
-
-                // Afficher le menu
-                afficherMenu(etudiantConnecte, conn);
-            } else {
-                System.out.println("Mauvais mail ou mot de passe ! Veuillez réessayer.");
-            }
-        }
-
-        // Reste du code...
+        GestionStageEtudiant gestionStageEtudiant = new GestionStageEtudiant();
+        gestionStageEtudiant.run();
     }
 
-    private static void afficherMenu(Etudiant etudiant, Connection conn) {
+    private void afficherMenu(Etudiant etudiant, Connection conn) {
         Scanner scanner = new Scanner(System.in);
 
         int choix;
@@ -74,7 +42,43 @@ public class GestionStageEtudiant {
         } while (choix != 0);
     }
 
-    private static Etudiant authenticateStudent(Connection conn) {
+    private void initializeDatabase(){
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch (ClassNotFoundException e) {
+            System.out.println("Driver PostgreSQL manquant !");
+            System.exit(1);
+        }
+
+        String url="jdbc:postgresql://localhost:5432/postgres";
+        conn=null;
+        try {
+            conn= DriverManager.getConnection(url,"postgres","Tomtom2002=Wiizlax");
+        } catch (SQLException e) {
+            System.out.println("Impossible de joindre le server !");
+            System.exit(1);
+        }
+    }
+
+    public void run(){
+        initializeDatabase();
+        Etudiant etudiantConnecte = null;
+
+        // Boucle pour demander le mail et le mdp jusqu'a ce que la connexion réussisse
+        while (etudiantConnecte == null) {
+            etudiantConnecte = authenticateStudent(conn);
+
+            if (etudiantConnecte != null) {
+                System.out.println("Connexion réussie pour l'étudiant : " + etudiantConnecte.getPrenomEtudiant() + ' ' + etudiantConnecte.getNomEtudiant());
+
+                afficherMenu(etudiantConnecte, conn);
+            } else {
+                System.out.println("Mauvais mail ou mot de passe ! Veuillez réessayer.");
+            }
+        }
+    }
+
+    private Etudiant authenticateStudent(Connection conn) {
         Scanner scanner = new Scanner(System.in);
 
         System.out.print("Entrez votre email : ");
@@ -110,7 +114,7 @@ public class GestionStageEtudiant {
         return null;
     }
 
-    private static void afficherOffresValideesParSemestre(Etudiant etudiant, Connection conn) {
+    private void afficherOffresValideesParSemestre(Etudiant etudiant, Connection conn) {
         // Requête SQL pour récupérer les offres validées par semestre pour un étudiant
         String query = "SELECT * FROM projet.visualiseroffresvalideesparsemestre WHERE id_etudiant = ?";
 
@@ -137,7 +141,7 @@ public class GestionStageEtudiant {
         }
     }
 
-    private static void rechercherOffreParMotCle(Etudiant etudiant, Connection conn) {
+    private void rechercherOffreParMotCle(Etudiant etudiant, Connection conn) {
         Scanner scanner = new Scanner(System.in);
 
         System.out.print("Entrez le mot-clé : ");
@@ -170,7 +174,7 @@ public class GestionStageEtudiant {
         }
     }
 
-    private static void poserCandidature(Etudiant etudiant, Connection conn) {
+    private void poserCandidature(Etudiant etudiant, Connection conn) {
         Scanner scanner = new Scanner(System.in);
 
         System.out.print("Entrez le code de l'offre de stage : ");
@@ -202,7 +206,7 @@ public class GestionStageEtudiant {
         }
     }
 
-    private static void afficherCandidaturesEtudiant(Etudiant etudiant, Connection conn) {
+    private void afficherCandidaturesEtudiant(Etudiant etudiant, Connection conn) {
         String query = "SELECT * FROM projet.getcandidaturesetudiant WHERE etudiant = ?";
 
         try (PreparedStatement preparedStatement = conn.prepareStatement(query)) {
@@ -225,13 +229,12 @@ public class GestionStageEtudiant {
         }
     }
 
-    private static void annulerCandidature(Etudiant etudiant, Connection conn) {
+    private void annulerCandidature(Etudiant etudiant, Connection conn) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Entrez le code de l'offre de stage à annuler : ");
         String codeOffre = scanner.nextLine();
 
-        // Appeler la procédure stockée pour annuler la candidature
-        String query = "CALL annulerCandidature(?, ?)";
+        String query = "SELECT projet.annulercandidature(?, ?)";
         try (PreparedStatement preparedStatement = conn.prepareStatement(query)) {
             preparedStatement.setString(1, codeOffre);
             preparedStatement.setInt(2, etudiant.getIdEtudiant());
