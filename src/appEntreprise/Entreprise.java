@@ -1,3 +1,5 @@
+package appEntreprise;
+
 public class Entreprise {
 
     private String id_entreprise;

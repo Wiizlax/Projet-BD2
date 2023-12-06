@@ -1,3 +1,5 @@
+package appEntreprise;
+
 import java.sql.*;
 import java.util.Scanner;
 
@@ -50,8 +52,8 @@ public class GestionStageEntreprise {
         int choix;
         do {
             System.out.println("-------------------------------------------------------");
-            System.out.println("\n Entreprise " + entreprise.getNom_entreprise());
-            System.out.println("\n Menu Entreprise :");
+            System.out.println("\n appEntreprise.Entreprise " + entreprise.getNom_entreprise());
+            System.out.println("\n Menu appEntreprise.Entreprise :");
 
             System.out.println("1 -> Encoder une offre de stage.");
             System.out.println("2 -> Voir les mots-clés disponibles pour décrire une offre de stage.");
@@ -98,7 +100,7 @@ public class GestionStageEntreprise {
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    // Création de l'objet Entreprise avec les informations de la base de données
+                    // Création de l'objet appEntreprise.Entreprise avec les informations de la base de données
                     Entreprise entreprise = new Entreprise();
                     entreprise.setId_entreprise(resultSet.getString("id_entreprise"));
                     entreprise.setAdresse_mail(email);
@@ -271,7 +273,7 @@ public class GestionStageEntreprise {
                     //affichage des offres
 
                     System.out.println("__________________ Candidature  "+ i + " ______________________");
-                    System.out.println(" Nom Etudiant : " + nomEtudiant);
+                    System.out.println(" Nom appEtudiant.Etudiant : " + nomEtudiant);
                     System.out.println(" E-mail etudiant : " + mailEtudiant);
                     System.out.println(" Motivation : "+ motivationEtudiant);
                     System.out.println(" Etat de la candidature : " + etat);

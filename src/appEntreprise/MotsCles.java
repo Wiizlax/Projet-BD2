@@ -1,3 +1,5 @@
+package appEntreprise;
+
 public class MotsCles {
 
     private int idMotCle;
