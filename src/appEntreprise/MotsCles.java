@@ -28,4 +28,10 @@ public class MotsCles {
     public void setMot(String mot) {
         this.mot = mot;
     }
+
+    @Override
+    public String toString() {
+        return "\nID mot clé : " + idMotCle + "\n" +
+                "Nom mot clé : " + mot;
+    }
 }

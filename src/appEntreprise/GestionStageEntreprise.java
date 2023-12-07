@@ -66,7 +66,7 @@ public class GestionStageEntreprise {
 
             if (scanner.hasNextInt()) {
                 // Demander le choix à l'utilisateur
-                System.out.print("Choix : ");
+                System.out.print("Choix : \n");
                 choix = scanner.nextInt();
 
                 // Effectuer l'action en fonction du choix
@@ -123,7 +123,7 @@ public class GestionStageEntreprise {
         return null;
     }
 
-    private OffreStage encoderNouvelleOffreStage(Connection conn, Entreprise entreprise) {
+    private void encoderNouvelleOffreStage(Connection conn, Entreprise entreprise) {
 
 
         Scanner scanner = new Scanner(System.in);
@@ -137,8 +137,7 @@ public class GestionStageEntreprise {
         nouvelleOffre.setDescription(description);
         nouvelleOffre.setSemestre_stage(semestre_stage); // Set the ID of the company offering the internship
 
-        String query = "INSERT INTO projet.offres_de_stage ( entreprise, code_stage , etat, semestre_stage, description) VALUES (?, DEFAULT,DEFAULT , ?, ?) " +
-                "RETURNING id_offre_stage , etat , code_stage";
+        String query = "SELECT * FROM projet.encoderOffreStage(?,?,?)";
         try (PreparedStatement preparedStatement = conn.prepareStatement(query)) {
             preparedStatement.setString(1, nouvelleOffre.getEntreprise().getId_entreprise());
             preparedStatement.setString(2, nouvelleOffre.getSemestre_stage());
@@ -148,46 +147,17 @@ public class GestionStageEntreprise {
             // verifie si on a modifié + d'une colonne
             try (ResultSet generatedKeys = preparedStatement.executeQuery()) {
                 if (generatedKeys.next()) {
-                    int idOffreStage = generatedKeys.getInt(1); // Récupération de la valeur de la colonne auto-incrémentée
-                    nouvelleOffre.setIdOffreStage(idOffreStage);
-                    String etat = generatedKeys.getString(2);
-                    nouvelleOffre.setEtat(etat);
-                    nouvelleOffre.setCode_stage(getCodeOffre(conn, idOffreStage));
-                    System.out.println("\nOffre de stage encodée avec succès !  ");
-                    System.out.println("-------------------------------------");
-                    System.out.println("Informations sur l'offre ajouté : " + "\n" + nouvelleOffre.toString());
-                    return nouvelleOffre;
+                    String codeOffre = generatedKeys.getString(1);
+                    System.out.println("\nOffre de stage avec le code " +codeOffre+ " encodée avec succès !  ");
                 }
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
+            System.out.println("Erreur lors de l'encodage de l'offre de stage.");
         }
-        System.out.println("Erreur lors de l'encodage de l'offre de stage.");
-        return null;
+
     }
-
-    private String getCodeOffre(Connection conn, int id_offre) {
-        String codeStage = "";
-        String query = "SELECT * FROM projet.getcode_offre WHERE id_offre_stage = ?";
-        try (PreparedStatement preparedStatement = conn.prepareStatement(query)) {
-            preparedStatement.setInt(1, id_offre);
-
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    codeStage = resultSet.getString("code_stage");
-
-
-                    return codeStage;
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            codeStage = null;
-        }
-        return codeStage;
-    }
-
     private void voirMotClesDisponibles(Connection conn) {
         String sqlQuery = "SELECT id_mot_cle , mot FROM projet.mots_cles mc";
         try (Statement statement = conn.createStatement();
@@ -220,10 +190,10 @@ public class GestionStageEntreprise {
             preparedStatement.setString(1, entreprise.getId_entreprise());
             preparedStatement.setString(2, codeOffre);
             preparedStatement.setString(3, motCle);
-
+            System.out.println("\n ");
             try (ResultSet generatedKeys = preparedStatement.executeQuery()) {
                 if (generatedKeys.next()) {
-                    System.out.println("\nMot Clé : " + motCle + " ajouté à l'offre " + codeOffre + " avec succès !");
+                    System.out.println("\n Mot Clé : " + motCle + " ajouté à l'offre " + codeOffre + " avec succès !");
                 }
             }
         } catch (SQLException e) {
@@ -341,8 +311,5 @@ public class GestionStageEntreprise {
         }
     }
 
-    public static void main(String[] args) {
-        GestionStageEntreprise gestionStageEntreprise = new GestionStageEntreprise();
-        gestionStageEntreprise.run();
-    }
+
 }
