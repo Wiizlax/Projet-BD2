@@ -3,6 +3,7 @@ package appProfesseur;
 import appEntreprise.BCrypt;
 import appEntreprise.Entreprise;
 import appEntreprise.MotsCles;
+import appEntreprise.OffreStage;
 import appEtudiant.Etudiant;
 
 import java.sql.*;
@@ -42,6 +43,7 @@ public class GestionStageProfesseur {
             System.out.println("1 -> Encoder un étudiant");
             System.out.println("2 -> Encoder une entreprise");
             System.out.println("3 -> Encoder un mot clé");
+            System.out.println("4 -> Voir les offres de stage non validées");
 
             System.out.print("Choix : ");
 
@@ -53,6 +55,7 @@ public class GestionStageProfesseur {
                     case 1 -> encoderEtudiant(conn);
                     case 2 -> encoderEntreprise(conn);
                     case 3 -> encoderMotCle(conn);
+                    case 4 -> voirOffresDeStageNonValidees(conn);
                     default -> System.out.println("Choix invalide. Veuillez réessayer.");
                 }
             } else {
@@ -192,5 +195,28 @@ public class GestionStageProfesseur {
         System.out.println("Erreur lors de l'encodage du mot clé.");
         return null;
 
+    }
+
+    private static void voirOffresDeStageNonValidees(Connection conn) {
+        String query = "SELECT * FROM projet.offres_non_validees";
+        System.out.println();
+        try (Statement statement = conn.createStatement();
+             ResultSet resultSet = statement.executeQuery(query)) {
+
+            // Parcourir les résultats du ResultSet
+            while (resultSet.next()) {
+
+                String codeStage = resultSet.getString("code_stage");
+                String semestreStage = resultSet.getString("semestre_stage");
+                String nomEntreprise = resultSet.getString("nom_entreprise");
+                String description = resultSet.getString("description");
+
+                //affichage des mots clés
+                System.out.println("Code du stage : " + codeStage + "  Semstre du stage : " + semestreStage + "  Nom de l'entreprise : "
+                                    + nomEntreprise + "  Description : " + description);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
