@@ -3,14 +3,16 @@ package appProfesseur;
 import appEntreprise.BCrypt;
 import appEntreprise.Entreprise;
 import appEntreprise.MotsCles;
+import appEntreprise.OffreStage;
 import appEtudiant.Etudiant;
+import org.postgresql.util.OSUtil;
 
 import java.sql.*;
 import java.util.Scanner;
 
 public class GestionStageProfesseur {
 
-    private static Scanner scanner;
+    private static final Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
 
@@ -23,17 +25,17 @@ public class GestionStageProfesseur {
 
         String url = "jdbc:postgresql://localhost:5432/postgres";
         Connection conn = null;
+        OffreStage offreStage = new OffreStage();
         try {
             conn = DriverManager.getConnection(url, "postgres", "mdp"); //ton mdp postgres
         } catch (SQLException e) {
             System.out.println("Impossible de joindre le server !");
             System.exit(1);
         }
-        afficherMenu(conn);
+        afficherMenu(conn, offreStage);
     }
 
-    private static void afficherMenu(Connection conn) {
-        Scanner scanner = new Scanner(System.in);
+    private static void afficherMenu(Connection conn, OffreStage offreStage) {
 
         int choix;
         do {
@@ -42,6 +44,11 @@ public class GestionStageProfesseur {
             System.out.println("1 -> Encoder un étudiant");
             System.out.println("2 -> Encoder une entreprise");
             System.out.println("3 -> Encoder un mot clé");
+            System.out.println("4 -> Voir les offres de stage non validées");
+            System.out.println("5 -> Valider une offre de stage");
+            System.out.println("6 -> Voir les offres de stage validées");
+            System.out.println("7 -> Voir les étudiants sans stages");
+            System.out.println("8 -> Voir les offres de stage attribuées");
 
             System.out.print("Choix : ");
 
@@ -53,6 +60,11 @@ public class GestionStageProfesseur {
                     case 1 -> encoderEtudiant(conn);
                     case 2 -> encoderEntreprise(conn);
                     case 3 -> encoderMotCle(conn);
+                    case 4 -> voirOffresDeStageNonValidees(conn);
+                    case 5 -> validerOffreDeStage(conn, offreStage);
+                    case 6 -> voirOffresDeStageValidees(conn);
+                    case 7 -> voirEtudiantsSansStages(conn);
+                    case 8 -> voirOffresDeStageAttribuees(conn);
                     default -> System.out.println("Choix invalide. Veuillez réessayer.");
                 }
             } else {
@@ -192,5 +204,129 @@ public class GestionStageProfesseur {
         System.out.println("Erreur lors de l'encodage du mot clé.");
         return null;
 
+    }
+
+    private static void voirOffresDeStageNonValidees(Connection conn) {
+        String query = "SELECT * FROM projet.offres_non_validees";
+        System.out.println();
+        try (Statement statement = conn.createStatement();
+             ResultSet resultSet = statement.executeQuery(query)) {
+
+            // Parcourir les résultats du ResultSet
+            while (resultSet.next()) {
+
+                String codeStage = resultSet.getString("code_stage");
+                String semestreStage = resultSet.getString("semestre_stage");
+                String nomEntreprise = resultSet.getString("nom_entreprise");
+                String description = resultSet.getString("description");
+
+                System.out.println("Code du stage : " + codeStage);
+                System.out.println("Semstre du stage : " + semestreStage);
+                System.out.println("Nom de l'entreprise : " + nomEntreprise);
+                System.out.println("Description : " + description);
+                System.out.println();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void validerOffreDeStage(Connection conn, OffreStage offreStage) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("\nEntrez le code du stage : ");
+        String codeStage = scanner.nextLine();
+
+        String query = "SELECT * FROM valider_offre_de_stage(?)";
+
+        try (PreparedStatement preparedStatement = conn.prepareStatement(query)) {
+            preparedStatement.setString(1, codeStage);
+
+            try (ResultSet generatedKeys = preparedStatement.executeQuery()) {
+                if (generatedKeys.next()) {
+                    System.out.println("\nL'offre de stage " + codeStage + " a été validée avec succès !");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Erreur lors de la validation de l'offre de stage.");
+        }
+    }
+
+    private static void voirOffresDeStageValidees(Connection conn) {
+        String query = "SELECT * FROM projet.offres_validees";
+        System.out.println();
+        try (Statement statement = conn.createStatement();
+             ResultSet resultSet = statement.executeQuery(query)) {
+
+            // Parcourir les résultats du ResultSet
+            while (resultSet.next()) {
+
+                String codeStage = resultSet.getString("code_stage");
+                String semestreStage = resultSet.getString("semestre_stage");
+                String nomEntreprise = resultSet.getString("nom_entreprise");
+                String description = resultSet.getString("description");
+
+                System.out.println("Code du stage : " + codeStage);
+                System.out.println("Semstre du stage : " + semestreStage);
+                System.out.println("Nom de l'entreprise : " + nomEntreprise);
+                System.out.println("Description : " + description);
+                System.out.println();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void voirEtudiantsSansStages(Connection conn) {
+        String query = "SELECT * FROM projet.etudiants_sans_stages";
+        System.out.println();
+        try (Statement statement = conn.createStatement();
+             ResultSet resultSet = statement.executeQuery(query)) {
+
+            // Parcourir les résultats du ResultSet
+            while (resultSet.next()) {
+
+                String nomEtudiant = resultSet.getString("nom_etudiant");
+                String prenomEtudiant = resultSet.getString("prenom_etudiant");
+                String emailEtudiant = resultSet.getString("mail");
+                String semestreStage = resultSet.getString("semestre_stage");
+                int nbrCandidatureEnAttante = resultSet.getInt("nbr_candidature_en_attente");
+
+                System.out.println("Nom de l'étudiant : " + nomEtudiant);
+                System.out.println("Prénom de l'étudiant : " + prenomEtudiant);
+                System.out.println("E-mail de l'étudiant : " + emailEtudiant);
+                System.out.println("Semestre du stage : " + semestreStage);
+                System.out.println("Nombre de candidature en attente : " + nbrCandidatureEnAttante);
+                System.out.println();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void voirOffresDeStageAttribuees(Connection conn) {
+        String query = "SELECT * FROM projet.offres_attribuees";
+        System.out.println();
+        try (Statement statement = conn.createStatement();
+             ResultSet resultSet = statement.executeQuery(query)) {
+
+            // Parcourir les résultats du ResultSet
+            while (resultSet.next()) {
+
+                String codeStage = resultSet.getString("code_stage");
+                String nomEntreprise = resultSet.getString("nom_entreprise");
+                String nomEtudiant = resultSet.getString("nom_etudiant");
+                String prenomEtudiant = resultSet.getString("prenom_etudiant");
+
+
+                System.out.println("Code du stage : " + codeStage);
+                System.out.println("Nom de l'entreprise : " + nomEntreprise);
+                System.out.println("Nom de l'étudiant : " + nomEtudiant);
+                System.out.println("Prénom de l'étudiant : " + prenomEtudiant);
+                System.out.println();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
