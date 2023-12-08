@@ -38,9 +38,9 @@ public class GestionStageEntreprise {
             System.exit(1);
         }
 
-        String url = "jdbc:postgresql://localhost:5432/postgres";
+        String url = "jdbc:postgresql://172.24.2.6:5432/dbtomsimonis";
         try {
-            conn = DriverManager.getConnection(url, "postgres", "mdp");
+            conn = DriverManager.getConnection(url, "eduardosampaio", "KNBO95M8H");
         } catch (SQLException e) {
             System.out.println("Impossible de joindre le server !");
             System.exit(1);
