@@ -5,7 +5,6 @@ import appEntreprise.Entreprise;
 import appEntreprise.MotsCles;
 import appEntreprise.OffreStage;
 import appEtudiant.Etudiant;
-import org.postgresql.util.OSUtil;
 
 import java.sql.*;
 import java.util.Scanner;
