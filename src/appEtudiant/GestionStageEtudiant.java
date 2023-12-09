@@ -92,6 +92,7 @@ public class GestionStageEtudiant {
 
     /**
      * @param conn connection a la database
+     * @return l'étudiant authentifié
      */
     private Etudiant authenticateStudent(Connection conn) {
         Scanner scanner = new Scanner(System.in);
