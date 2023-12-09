@@ -5,17 +5,29 @@ import appEntreprise.Entreprise;
 import appEntreprise.MotsCles;
 import appEntreprise.OffreStage;
 import appEtudiant.Etudiant;
-import org.postgresql.util.OSUtil;
 
 import java.sql.*;
 import java.util.Scanner;
 
 public class GestionStageProfesseur {
 
-    private static final Scanner scanner = new Scanner(System.in);
+    private Scanner scanner;
+    private Connection conn;
 
-    public static void main(String[] args) {
+    public GestionStageProfesseur() {
+        scanner = new Scanner(System.in);
+        conn = null;
+    }
 
+    public void run() {
+        initializeDatabase();
+        afficherMenu(conn,new OffreStage());
+    }
+
+    /**
+     * initialise la base de donnees
+     */
+    private void initializeDatabase() {
         try {
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
@@ -23,19 +35,19 @@ public class GestionStageProfesseur {
             System.exit(1);
         }
 
-        String url = "jdbc:postgresql://localhost:5432/postgres";
-        Connection conn = null;
-        OffreStage offreStage = new OffreStage();
+        String url = "jdbc:postgresql://172.24.2.6:5432/dbtomsimonis";
         try {
-            conn = DriverManager.getConnection(url, "postgres", "mdp"); //ton mdp postgres
+            conn = DriverManager.getConnection(url, "sebastiendewilde", "UGKQ8ZOCA"); //ton mdp postgres
         } catch (SQLException e) {
             System.out.println("Impossible de joindre le server !");
             System.exit(1);
         }
-        afficherMenu(conn, offreStage);
     }
 
-    private static void afficherMenu(Connection conn, OffreStage offreStage) {
+    /**
+     * affiche le menu avec les choix tant que celui-ci est différent de 0
+     */
+    private void afficherMenu(Connection conn, OffreStage offreStage) {
 
         int choix;
         do {
@@ -75,7 +87,12 @@ public class GestionStageProfesseur {
         } while (choix != 0);
     }
 
-    private static Etudiant encoderEtudiant(Connection conn) {
+
+    /**
+     * @param conn connection a la databse
+     * @return l'etudiant encodé
+     */
+    private Etudiant encoderEtudiant(Connection conn) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("\nEntrez le nom de l'étudiant : ");
         String nomEtudiant = scanner.nextLine();
@@ -125,7 +142,11 @@ public class GestionStageProfesseur {
 
     }
 
-    private static Entreprise encoderEntreprise(Connection conn) {
+    /**
+     * @param conn connection a la databse
+     * @return l'entreprise encodée
+     */
+    private Entreprise encoderEntreprise(Connection conn) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("\nEntrez le nom de l'entreprise : ");
         String nomEntreprise = scanner.nextLine();
@@ -175,7 +196,11 @@ public class GestionStageProfesseur {
 
     }
 
-    private static MotsCles encoderMotCle(Connection conn) {
+    /**
+     * @param conn connection a la databse
+     * @return le mot clé encodé
+     */
+    private MotsCles encoderMotCle(Connection conn) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("\nEntrez le nom du mot clé : ");
         String nomMotCle = scanner.nextLine();
@@ -206,7 +231,10 @@ public class GestionStageProfesseur {
 
     }
 
-    private static void voirOffresDeStageNonValidees(Connection conn) {
+    /**
+     * @param conn connection a la databse
+     */
+    private void voirOffresDeStageNonValidees(Connection conn) {
         String query = "SELECT * FROM projet.offres_non_validees";
         System.out.println();
         try (Statement statement = conn.createStatement();
@@ -231,7 +259,10 @@ public class GestionStageProfesseur {
         }
     }
 
-    private static void validerOffreDeStage(Connection conn, OffreStage offreStage) {
+    /**
+     * @param conn connection a la databse
+     */
+    private void validerOffreDeStage(Connection conn, OffreStage offreStage) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("\nEntrez le code du stage : ");
         String codeStage = scanner.nextLine();
@@ -252,7 +283,10 @@ public class GestionStageProfesseur {
         }
     }
 
-    private static void voirOffresDeStageValidees(Connection conn) {
+    /**
+     * @param conn connection a la databse
+     */
+    private void voirOffresDeStageValidees(Connection conn) {
         String query = "SELECT * FROM projet.offres_validees";
         System.out.println();
         try (Statement statement = conn.createStatement();
@@ -277,7 +311,10 @@ public class GestionStageProfesseur {
         }
     }
 
-    private static void voirEtudiantsSansStages(Connection conn) {
+    /**
+     * @param conn connection a la databse
+     */
+    private void voirEtudiantsSansStages(Connection conn) {
         String query = "SELECT * FROM projet.etudiants_sans_stages";
         System.out.println();
         try (Statement statement = conn.createStatement();
@@ -304,7 +341,10 @@ public class GestionStageProfesseur {
         }
     }
 
-    private static void voirOffresDeStageAttribuees(Connection conn) {
+    /**
+     * @param conn connection a la databse
+     */
+    private void voirOffresDeStageAttribuees(Connection conn) {
         String query = "SELECT * FROM projet.offres_attribuees";
         System.out.println();
         try (Statement statement = conn.createStatement();

@@ -15,6 +15,9 @@ public class GestionStageEntreprise {
         entrepriseConnecte = null;
     }
 
+    /**
+     * lance le programme gestionStageEntreprise
+     */
     public void run() {
         initializeDatabase();
 
@@ -30,6 +33,9 @@ public class GestionStageEntreprise {
         }
     }
 
+    /**
+     * initialise la base de donnees
+     */
     private void initializeDatabase() {
         try {
             Class.forName("org.postgresql.Driver");
@@ -38,15 +44,18 @@ public class GestionStageEntreprise {
             System.exit(1);
         }
 
-        String url = "jdbc:postgresql://localhost:5432/postgres";
+        String url = "jdbc:postgresql://172.24.2.6:5432/dbtomsimonis";
         try {
-            conn = DriverManager.getConnection(url, "postgres", "mdp");
+            conn = DriverManager.getConnection(url, "eduardosampaio", "KNBO95M8H");
         } catch (SQLException e) {
             System.out.println("Impossible de joindre le server !");
             System.exit(1);
         }
     }
 
+    /**
+     * affiche le menu avec les choix tant que celui-ci est différent de 0
+     */
     private void afficherMenu(Entreprise entreprise, Connection conn) {
 
         int choix;
@@ -89,6 +98,9 @@ public class GestionStageEntreprise {
         } while (choix != 0);
     }
 
+    /**
+     * @param conn connection a la database
+     */
     private Entreprise authenticateCompany(Connection conn) {
         Scanner scanner = new Scanner(System.in);
 
@@ -123,8 +135,11 @@ public class GestionStageEntreprise {
         return null;
     }
 
+    /**
+     * @param entreprise l entreprise connecte
+     * @param conn connection a la database
+     */
     private void encoderNouvelleOffreStage(Connection conn, Entreprise entreprise) {
-
 
         Scanner scanner = new Scanner(System.in);
         System.out.print("\n Entrez le semestre auquel le stage se déroulera : ");
@@ -158,6 +173,10 @@ public class GestionStageEntreprise {
         }
 
     }
+
+    /**
+     * @param conn connection a la database
+     */
     private void voirMotClesDisponibles(Connection conn) {
         String sqlQuery = "SELECT id_mot_cle , mot FROM projet.mots_cles mc";
         try (Statement statement = conn.createStatement();
@@ -178,6 +197,10 @@ public class GestionStageEntreprise {
         }
     }
 
+    /**
+     * @param entreprise l entreprise connecte
+     * @param conn connection a la database
+     */
     private void ajouterMotCleAOffre(Connection conn, Entreprise entreprise) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("\n Entrez le code de l'offre que vous voulez ajouter un mot clé :  ");
@@ -203,6 +226,10 @@ public class GestionStageEntreprise {
 
     }
 
+    /**
+     * @param entreprise l entreprise connecte
+     * @param conn connection a la database
+     */
     private void voirOffresStage(Connection conn, Entreprise entreprise) {
         String sqlQuery = "SELECT * FROM projet.afficher_offres_par_entreprise(?)";
         try (PreparedStatement preparedStatement = conn.prepareStatement(sqlQuery)) {
@@ -233,6 +260,10 @@ public class GestionStageEntreprise {
         }
     }
 
+    /**
+     * @param entreprise l entreprise connecte
+     * @param conn connection a la database
+     */
     private void voirLesCandidaturesPourUneOffre(Connection conn, Entreprise entreprise) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("\n Entrez le code de l'offre que vous voulez verifier les candidatures :  ");
@@ -265,6 +296,10 @@ public class GestionStageEntreprise {
         }
     }
 
+    /**
+     * @param entreprise l entreprise connecte
+     * @param conn connection a la database
+     */
     private void selectionnerEtudiantPouroffre(Connection conn, Entreprise entreprise) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("\n Entrez le code de l'offre :  ");
@@ -289,7 +324,10 @@ public class GestionStageEntreprise {
         }
     }
 
-
+    /**
+     * @param entreprise l entreprise connecte
+     * @param conn connection a la database
+     */
     private void annulerOffreDeStage(Connection conn, Entreprise entreprise) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("\n Entrez le code de l'offre que vous voulez annuler :  ");
