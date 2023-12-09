@@ -34,6 +34,9 @@ public class GestionStageProfesseur {
         afficherMenu(conn, offreStage);
     }
 
+    /**
+     * affiche le menu avec les choix tant que celui-ci est différent de 0
+     */
     private static void afficherMenu(Connection conn, OffreStage offreStage) {
 
         int choix;
@@ -74,6 +77,11 @@ public class GestionStageProfesseur {
         } while (choix != 0);
     }
 
+
+    /**
+     * @param conn connection a la databse
+     * @return l'etudiant encodé
+     */
     private static Etudiant encoderEtudiant(Connection conn) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("\nEntrez le nom de l'étudiant : ");
@@ -124,6 +132,10 @@ public class GestionStageProfesseur {
 
     }
 
+    /**
+     * @param conn connection a la databse
+     * @return l'entreprise encodée
+     */
     private static Entreprise encoderEntreprise(Connection conn) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("\nEntrez le nom de l'entreprise : ");
@@ -174,6 +186,10 @@ public class GestionStageProfesseur {
 
     }
 
+    /**
+     * @param conn connection a la databse
+     * @return le mot clé encodé
+     */
     private static MotsCles encoderMotCle(Connection conn) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("\nEntrez le nom du mot clé : ");
@@ -205,6 +221,9 @@ public class GestionStageProfesseur {
 
     }
 
+    /**
+     * @param conn connection a la databse
+     */
     private static void voirOffresDeStageNonValidees(Connection conn) {
         String query = "SELECT * FROM projet.offres_non_validees";
         System.out.println();
@@ -230,6 +249,9 @@ public class GestionStageProfesseur {
         }
     }
 
+    /**
+     * @param conn connection a la databse
+     */
     private static void validerOffreDeStage(Connection conn, OffreStage offreStage) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("\nEntrez le code du stage : ");
@@ -251,6 +273,9 @@ public class GestionStageProfesseur {
         }
     }
 
+    /**
+     * @param conn connection a la databse
+     */
     private static void voirOffresDeStageValidees(Connection conn) {
         String query = "SELECT * FROM projet.offres_validees";
         System.out.println();
@@ -276,6 +301,9 @@ public class GestionStageProfesseur {
         }
     }
 
+    /**
+     * @param conn connection a la databse
+     */
     private static void voirEtudiantsSansStages(Connection conn) {
         String query = "SELECT * FROM projet.etudiants_sans_stages";
         System.out.println();
@@ -303,6 +331,9 @@ public class GestionStageProfesseur {
         }
     }
 
+    /**
+     * @param conn connection a la databse
+     */
     private static void voirOffresDeStageAttribuees(Connection conn) {
         String query = "SELECT * FROM projet.offres_attribuees";
         System.out.println();

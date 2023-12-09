@@ -9,11 +9,9 @@ public class GestionStageEtudiant {
 
     private Connection conn;
 
-    public static void main(String[] args)  {
-        GestionStageEtudiant gestionStageEtudiant = new GestionStageEtudiant();
-        gestionStageEtudiant.run();
-    }
-
+    /**
+     * affiche le menu avec les choix tant que celui-ci est différent de 0
+     */
     private void afficherMenu(Etudiant etudiant, Connection conn) {
         Scanner scanner = new Scanner(System.in);
 
@@ -49,6 +47,9 @@ public class GestionStageEtudiant {
         } while (choix != 0);
     }
 
+    /**
+     * initialise la base de donnees
+     */
     private void initializeDatabase(){
         try {
             Class.forName("org.postgresql.Driver");
@@ -58,15 +59,20 @@ public class GestionStageEtudiant {
         }
 
         String url = "jdbc:postgresql://172.24.2.6:5432/dbtomsimonis";
+        //String url = "jdbc:postgresql://localhost:5432/postgres";
         conn=null;
         try {
             conn= DriverManager.getConnection(url,"tomsimonis","Z4T82JVX9");
+           // conn = DriverManager.getConnection(url, "postgres", "mdp");
         } catch (SQLException e) {
             System.out.println("Impossible de joindre le server !");
             System.exit(1);
         }
     }
 
+    /**
+     * lance le prgramme gestionStageEtudiant
+     */
     public void run(){
         initializeDatabase();
         Etudiant etudiantConnecte = null;
@@ -84,6 +90,9 @@ public class GestionStageEtudiant {
         }
     }
 
+    /**
+     * @param conn connection a la database
+     */
     private Etudiant authenticateStudent(Connection conn) {
         Scanner scanner = new Scanner(System.in);
 
@@ -101,7 +110,6 @@ public class GestionStageEtudiant {
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    // Création de l'objet appEtudiant.Etudiant avec les informations de la base de données
                     Etudiant etudiant = new Etudiant();
                     etudiant.setIdEtudiant(resultSet.getInt("id_etudiant"));
                     etudiant.setNomEtudiant(resultSet.getString("nom_etudiant"));
@@ -120,8 +128,11 @@ public class GestionStageEtudiant {
         return null;
     }
 
+    /**
+     * @param etudiant l'etudiant connecte
+     * @param conn connection a la database
+     */
     private void afficherOffresValideesParSemestre(Etudiant etudiant, Connection conn) {
-        // Requête SQL pour récupérer les offres validées par semestre pour un étudiant
         String query = "SELECT * FROM projet.visualiseroffresvalideesparsemestre WHERE id_etudiant = ?";
 
         try (PreparedStatement preparedStatement = conn.prepareStatement(query)) {
@@ -147,6 +158,10 @@ public class GestionStageEtudiant {
         }
     }
 
+    /**
+     * @param etudiant l'etudiant connecte
+     * @param conn connection a la database
+     */
     private void rechercherOffreParMotCle(Etudiant etudiant, Connection conn) {
         Scanner scanner = new Scanner(System.in);
 
@@ -180,6 +195,10 @@ public class GestionStageEtudiant {
         }
     }
 
+    /**
+     * @param etudiant l'etudiant connecte
+     * @param conn connection a la database
+     */
     private void poserCandidature(Etudiant etudiant, Connection conn) {
         Scanner scanner = new Scanner(System.in);
 
@@ -212,6 +231,10 @@ public class GestionStageEtudiant {
         }
     }
 
+    /**
+     * @param etudiant l'etudiant connecte
+     * @param conn connection a la database
+     */
     private void afficherCandidaturesEtudiant(Etudiant etudiant, Connection conn) {
         String query = "SELECT * FROM projet.getcandidaturesetudiant WHERE etudiant = ?";
 
@@ -235,6 +258,10 @@ public class GestionStageEtudiant {
         }
     }
 
+    /**
+     * @param etudiant l'etudiant connecte
+     * @param conn connection a la database
+     */
     private void annulerCandidature(Etudiant etudiant, Connection conn) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Entrez le code de l'offre de stage à annuler : ");
