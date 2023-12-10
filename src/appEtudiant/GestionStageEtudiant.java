@@ -1,5 +1,6 @@
 package appEtudiant;
 
+import appEntreprise.BCrypt;
 import appEtudiant.Etudiant;
 
 import java.sql.*;
@@ -33,7 +34,7 @@ public class GestionStageEtudiant {
                 switch (choix) {
                     case 1 -> afficherOffresValideesParSemestre(etudiant, conn);
                     case 2 -> rechercherOffreParMotCle(etudiant, conn);
-                    case 3 -> poserCandidature(etudiant,conn);
+                    case 3 -> poserCandidature(etudiant, conn);
                     case 4 -> afficherCandidaturesEtudiant(etudiant, conn);
                     case 5 -> annulerCandidature(etudiant, conn);
                     case 0 -> System.out.println("Au revoir !");
@@ -50,7 +51,7 @@ public class GestionStageEtudiant {
     /**
      * initialise la base de donnees
      */
-    private void initializeDatabase(){
+    private void initializeDatabase() {
         try {
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
@@ -59,11 +60,9 @@ public class GestionStageEtudiant {
         }
 
         String url = "jdbc:postgresql://172.24.2.6:5432/dbtomsimonis";
-        //String url = "jdbc:postgresql://localhost:5432/postgres";
-        conn=null;
+        conn = null;
         try {
             conn= DriverManager.getConnection(url,"tomsimonis","Z4T82JVX9");
-           // conn = DriverManager.getConnection(url, "postgres", "mdp");
         } catch (SQLException e) {
             System.out.println("Impossible de joindre le server !");
             System.exit(1);
@@ -73,7 +72,7 @@ public class GestionStageEtudiant {
     /**
      * lance le prgramme gestionStageEtudiant
      */
-    public void run(){
+    public void run() {
         initializeDatabase();
         Etudiant etudiantConnecte = null;
 
@@ -91,7 +90,7 @@ public class GestionStageEtudiant {
     }
 
     /**
-     * @param conn connection a la database
+     * @param conn connection à la base de données
      * @return l'étudiant authentifié
      */
     private Etudiant authenticateStudent(Connection conn) {
@@ -103,24 +102,26 @@ public class GestionStageEtudiant {
         System.out.print("Entrez votre mot de passe : ");
         String motDePasse = scanner.nextLine();
 
-        // Requête pour vérifier l'authentification
-        String query = "SELECT * FROM projet.etudiants WHERE mail = ? AND mot_de_passe = ?";
+        String query = "SELECT * FROM projet.etudiants WHERE mail = ?";
         try (PreparedStatement preparedStatement = conn.prepareStatement(query)) {
             preparedStatement.setString(1, email);
-            preparedStatement.setString(2, motDePasse);
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    Etudiant etudiant = new Etudiant();
-                    etudiant.setIdEtudiant(resultSet.getInt("id_etudiant"));
-                    etudiant.setNomEtudiant(resultSet.getString("nom_etudiant"));
-                    etudiant.setPrenomEtudiant(resultSet.getString("prenom_etudiant"));
-                    etudiant.setMail(email);
-                    etudiant.setSemestreStage(resultSet.getString("semestre_stage"));
-                    etudiant.setMdp(motDePasse);
-                    etudiant.setNbrCandidatureEnAttente(resultSet.getInt("nbr_candidature_en_attente"));
+                    String hashedPasswordFromDB = resultSet.getString("mot_de_passe");
 
-                    return etudiant;
+                    if (BCrypt.checkpw(motDePasse, hashedPasswordFromDB)) {
+                        Etudiant etudiant = new Etudiant();
+                        etudiant.setIdEtudiant(resultSet.getInt("id_etudiant"));
+                        etudiant.setNomEtudiant(resultSet.getString("nom_etudiant"));
+                        etudiant.setPrenomEtudiant(resultSet.getString("prenom_etudiant"));
+                        etudiant.setMail(email);
+                        etudiant.setSemestreStage(resultSet.getString("semestre_stage"));
+                        etudiant.setMdp(hashedPasswordFromDB);
+                        etudiant.setNbrCandidatureEnAttente(resultSet.getInt("nbr_candidature_en_attente"));
+
+                        return etudiant;
+                    }
                 }
             }
         } catch (SQLException e) {
@@ -129,9 +130,10 @@ public class GestionStageEtudiant {
         return null;
     }
 
+
     /**
      * @param etudiant l'etudiant connecte
-     * @param conn connection a la database
+     * @param conn     connection a la database
      */
     private void afficherOffresValideesParSemestre(Etudiant etudiant, Connection conn) {
         String query = "SELECT * FROM projet.visualiseroffresvalideesparsemestre WHERE id_etudiant = ?";
@@ -155,13 +157,14 @@ public class GestionStageEtudiant {
                 }
             }
         } catch (SQLException e) {
-            System.out.println(e.getMessage());;
+            System.out.println(e.getMessage());
+            ;
         }
     }
 
     /**
      * @param etudiant l'etudiant connecte
-     * @param conn connection a la database
+     * @param conn     connection a la database
      */
     private void rechercherOffreParMotCle(Etudiant etudiant, Connection conn) {
         Scanner scanner = new Scanner(System.in);
@@ -198,7 +201,7 @@ public class GestionStageEtudiant {
 
     /**
      * @param etudiant l'etudiant connecte
-     * @param conn connection a la database
+     * @param conn     connection a la database
      */
     private void poserCandidature(Etudiant etudiant, Connection conn) {
         Scanner scanner = new Scanner(System.in);
@@ -234,7 +237,7 @@ public class GestionStageEtudiant {
 
     /**
      * @param etudiant l'etudiant connecte
-     * @param conn connection a la database
+     * @param conn     connection a la database
      */
     private void afficherCandidaturesEtudiant(Etudiant etudiant, Connection conn) {
         String query = "SELECT * FROM projet.getcandidaturesetudiant WHERE etudiant = ?";
@@ -261,7 +264,7 @@ public class GestionStageEtudiant {
 
     /**
      * @param etudiant l'etudiant connecte
-     * @param conn connection a la database
+     * @param conn     connection a la database
      */
     private void annulerCandidature(Etudiant etudiant, Connection conn) {
         Scanner scanner = new Scanner(System.in);

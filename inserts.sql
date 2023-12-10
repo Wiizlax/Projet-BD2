@@ -71,8 +71,8 @@ INSERT INTO projet.mots_cles (mot) VALUES
                                        ('Python');
 
 INSERT INTO projet.etudiants (nom_etudiant, prenom_etudiant, mail, semestre_stage, mot_de_passe, nbr_candidature_en_attente) VALUES
-                                                                                                                                 ('De', 'Jean', 'j.d@student.vinci.be', 'Q2', 'jd',1),
-                                                                                                                                 ('Du', 'Marc', 'm.d@student.vinci.be', 'Q1', 'md',1);
+                                                                                                                                 ('De', 'Jean', 'j.d@student.vinci.be', 'Q2', '$2a$10$pADNNXEwdzo7JCmFEPBV0.s9DDHZaC6wFKoLqJN2iZZ00YH6UPhmm',1),
+                                                                                                                                 ('Du', 'Marc', 'm.d@student.vinci.be', 'Q1', '$2a$10$tH8lGytrCRc7UHgzJTbeC.zpzxcGLuE/TxvFvyXAn4NccEuqtwPGW',1);
 
 INSERT INTO projet.entreprises (id_entreprise, nom_entreprise, adresse_entreprise, adresse_mail, mot_de_passe) VALUES
                                                                                                                    ('VIN', 'VINCI', 'Adresse_vinci', 'vinci@vinci.be', 'vinci'),

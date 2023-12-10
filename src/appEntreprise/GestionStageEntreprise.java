@@ -110,23 +110,26 @@ public class GestionStageEntreprise {
         System.out.print("Entrez le mot de passe : ");
         String motDePasse = scanner.nextLine();
 
-        // Requête pour vérifier l'authentification
-        String query = "SELECT * FROM projet.entreprises et WHERE et.adresse_mail  = ? AND mot_de_passe = ?";
+        String query = "SELECT * FROM projet.entreprises et WHERE et.adresse_mail  = ?";
         try (PreparedStatement preparedStatement = conn.prepareStatement(query)) {
             preparedStatement.setString(1, email);
-            preparedStatement.setString(2, motDePasse);
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    // Création de l'objet appEntreprise.Entreprise avec les informations de la base de données
-                    Entreprise entreprise = new Entreprise();
-                    entreprise.setId_entreprise(resultSet.getString("id_entreprise"));
-                    entreprise.setAdresse_mail(email);
-                    entreprise.setMot_de_passe(motDePasse);
-                    entreprise.setNom_entreprise(resultSet.getString("nom_entreprise"));
-                    entreprise.setAdresse_entreprise(resultSet.getString("adresse_entreprise"));
+                    String hashedPasswordFromDB = resultSet.getString("mot_de_passe");
 
-                    return entreprise;
+                    // Vérifiez le mot de passe en utilisant BCrypt
+                    if (BCrypt.checkpw(motDePasse, hashedPasswordFromDB)) {
+                        // Création de l'objet appEntreprise.Entreprise avec les informations de la base de données
+                        Entreprise entreprise = new Entreprise();
+                        entreprise.setId_entreprise(resultSet.getString("id_entreprise"));
+                        entreprise.setAdresse_mail(email);
+                        entreprise.setMot_de_passe(hashedPasswordFromDB);
+                        entreprise.setNom_entreprise(resultSet.getString("nom_entreprise"));
+                        entreprise.setAdresse_entreprise(resultSet.getString("adresse_entreprise"));
+
+                        return entreprise;
+                    }
                 }
             }
         } catch (SQLException e) {
@@ -135,9 +138,10 @@ public class GestionStageEntreprise {
         return null;
     }
 
+
     /**
      * @param entreprise l entreprise connecte
-     * @param conn connection a la database
+     * @param conn       connection a la database
      */
     private void encoderNouvelleOffreStage(Connection conn, Entreprise entreprise) {
 
@@ -163,7 +167,7 @@ public class GestionStageEntreprise {
             try (ResultSet generatedKeys = preparedStatement.executeQuery()) {
                 if (generatedKeys.next()) {
                     String codeOffre = generatedKeys.getString(1);
-                    System.out.println("\nOffre de stage avec le code " +codeOffre+ " encodée avec succès !  ");
+                    System.out.println("\nOffre de stage avec le code " + codeOffre + " encodée avec succès !  ");
                 }
             }
 
@@ -199,7 +203,7 @@ public class GestionStageEntreprise {
 
     /**
      * @param entreprise l entreprise connecte
-     * @param conn connection a la database
+     * @param conn       connection a la database
      */
     private void ajouterMotCleAOffre(Connection conn, Entreprise entreprise) {
         Scanner scanner = new Scanner(System.in);
@@ -228,7 +232,7 @@ public class GestionStageEntreprise {
 
     /**
      * @param entreprise l entreprise connecte
-     * @param conn connection a la database
+     * @param conn       connection a la database
      */
     private void voirOffresStage(Connection conn, Entreprise entreprise) {
         String sqlQuery = "SELECT * FROM projet.afficher_offres_par_entreprise(?)";
@@ -262,7 +266,7 @@ public class GestionStageEntreprise {
 
     /**
      * @param entreprise l entreprise connecte
-     * @param conn connection a la database
+     * @param conn       connection a la database
      */
     private void voirLesCandidaturesPourUneOffre(Connection conn, Entreprise entreprise) {
         Scanner scanner = new Scanner(System.in);
@@ -298,7 +302,7 @@ public class GestionStageEntreprise {
 
     /**
      * @param entreprise l entreprise connecte
-     * @param conn connection a la database
+     * @param conn       connection a la database
      */
     private void selectionnerEtudiantPouroffre(Connection conn, Entreprise entreprise) {
         Scanner scanner = new Scanner(System.in);
@@ -326,7 +330,7 @@ public class GestionStageEntreprise {
 
     /**
      * @param entreprise l entreprise connecte
-     * @param conn connection a la database
+     * @param conn       connection a la database
      */
     private void annulerOffreDeStage(Connection conn, Entreprise entreprise) {
         Scanner scanner = new Scanner(System.in);
